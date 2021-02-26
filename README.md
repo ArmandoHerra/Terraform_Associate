@@ -28,7 +28,27 @@
 ## 3. Understand Terraform basics
 
 ### 3a. Handle Terraform and provider installation and versioning
-- 
+- The recommended way to handle the definition, installation and versioning of a provider is by using the `required_providers` block. Example. Note, this works for Terraform version 0.13 and above.
+
+```
+terraform {
+  required_providers {
+    mycloud = {
+      source  = "mycorp/mycloud"
+      version = "~> 1.0"
+    }
+  }
+}
+```
+
+- For versions 0.12.
+```
+terraform {
+  required_providers {
+    aws = "~> 1.0"
+  }
+}
+```
 
 ### 3b. Describe plugin based architecture
 - Terraform is built on a plugin-based architecture so developers can create and extend Terraform's functionality.
@@ -36,7 +56,7 @@
 - There exist two main parts to Terraform: `Terraform Core` and `Terraform Plugins`.
 
 ### 3c. Demonstrate using multiple providers
-- Link to Lab
+- [Lab](./Labs/Section-3)
 
 ### 3d. Describe how Terraform finds and fetches providers
 - When `terraform init` is run, Terraform reads the existing configuration files to determine which plugins are going to be used or have been required in the project. It searches for the plugins, it downloads them, and installs the determined pinned or version from the allowed version range. Finally, it writes a lock file to ensure Terraform will use the same plugin versions in the working directory until `terraform init` is run again.
@@ -57,6 +77,9 @@
 ## 4. Use the Terraform CLI (outside of core workflow)
 
 ### 4a. Given a scenario: choose when to use `terraform fmt` to format code
+
+
+
 ### 4b. Given a scenario: choose when to use `terraform taint` to taint Terraform resources
 ### 4c. Given a scenario: choose when to use `terraform import` to import existing infrastructure into your Terraform state
 ### 4d. Given a scenario: choose when to use `terraform workspace` to create workspaces
