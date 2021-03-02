@@ -1,6 +1,12 @@
 # Instructions to run this lab.
 
-1.- Check if you have Terraform installed `terraform --version`, ideally you should have Terraform version 0.13 or later.
+## Quick Check-Setup
+
+- Run: `make lab`
+
+## Step-by step Setup
+
+1.- Check if you have Terraform installed by running `terraform --version`, if you have terraform installed you should see the version you have as a result, ideally you should have Terraform version `0.13` or later, the lab was developed on version `0.14.X`.
 
 2.- Have the AWS CLI configured, run `aws s3 ls` and if you get a list of buckets from your account, your CLI is correctly configured.
 

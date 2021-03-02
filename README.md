@@ -56,7 +56,7 @@ terraform {
 - There exist two main parts to Terraform: `Terraform Core` and `Terraform Plugins`.
 
 ### 3c. Demonstrate using multiple providers
-- [Lab](./Labs/Section-3)
+- [Lab](./Labs/Section-3/multiple-providers/)
 
 ### 3d. Describe how Terraform finds and fetches providers
 - When `terraform init` is run, Terraform reads the existing configuration files to determine which plugins are going to be used or have been required in the project. It searches for the plugins, it downloads them, and installs the determined pinned or version from the allowed version range. Finally, it writes a lock file to ensure Terraform will use the same plugin versions in the working directory until `terraform init` is run again.
@@ -78,6 +78,22 @@ terraform {
 
 ### 4a. Given a scenario: choose when to use `terraform fmt` to format code
 
+- The `terraform fmt` command is used to rewrite the Terraform configuration files, applying some language style conventions and other adjustments for a standard and consistent format.
+
+- The formatting may change between versions.
+  - Eg. `0.12.X vs 0.13.X` or `0.13.X vs 0.14.X`
+  - So it may be wise to run `terraform fmt` when upgrading Terraform versions.
+
+- Usage: `terraform fmt [options] [DIR]` (Default DIR is current DIR)
+  - `-list=false` - This option allows you to not list files that have formatting differences.
+  - `-write=false` - When you run the command with this option, it doesn't overwrite the files, but does tell you which don't have the standard format.
+  - `-diff` - With this option enabled you display a diff of the formatting changes that you are wanting to take place.
+  - `-check` - This option allows you to "check" if the files have correct formatting, no rewriting is taken place, if they don't it will return a non-zero exit code, this can be used for linting scripts or tools.
+  - `-recursive` - When using this option, you also enable the formatting to process files in subdirectories. Useful when dealing with multiple folder/file layouts.
+
+For more detailed information run `terraform fmt --help`
+
+To get more hands on experience come and try the commands and the options in the [Lab](./Labs/Section-4/fmt/)
 
 
 ### 4b. Given a scenario: choose when to use `terraform taint` to taint Terraform resources

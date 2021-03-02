@@ -3,7 +3,7 @@ data "aws_ami" "centos_east" {
 
   filter {
     name   = "name"
-    values = ["CentOS Linux 7 x86_64 HVM EBS ENA 2002_01-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
 
   filter {
@@ -11,16 +11,18 @@ data "aws_ami" "centos_east" {
     values = ["hvm"]
   }
 
-  owners = ["679593333241"] # Canonical
+  owners = ["099720109477"]
 }
 
 data "aws_ami" "centos_west" {
-  provider    = aws.west
+  # Selecting our second provider by referencing it's alias.
+  provider = aws.west
+
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["CentOS Linux 7 x86_64 HVM EBS ENA 2002_01-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
 
   filter {
@@ -28,13 +30,13 @@ data "aws_ami" "centos_west" {
     values = ["hvm"]
   }
 
-  owners = ["679593333241"] # Canonical
+  owners = ["099720109477"]
 }
 
 
 resource "aws_instance" "east_instance" {
   ami           = data.aws_ami.centos_east.id
-  instance_type = "t3.small"
+  instance_type = "t3.nano"
   tags = {
     Lab = "Multiple Providers"
   }
@@ -44,7 +46,7 @@ resource "aws_instance" "east_instance" {
 resource "aws_instance" "west_instance" {
   provider      = aws.west
   ami           = data.aws_ami.centos_west.id
-  instance_type = "t3.small"
+  instance_type = "t3.nano"
   tags = {
     Lab = "Multiple Providers"
   }
