@@ -97,7 +97,39 @@ To get more hands on experience come and try the commands and the options in the
 
 
 ### 4b. Given a scenario: choose when to use `terraform taint` to taint Terraform resources
+
+- The `terraform taint` command manually marks a resource that is being managed by Terraform as a `tainted` resource, a `tainted` resource is forced to be destroyed and recreated on the next apply.
+
+- The command itself does not modify the infrastructure, it marks the state file so Terraform knows what to do to the resource after the next plan/apply.
+
+- This is useful when you want to cause a certain side effect of recreating that is not visible in the attributes of a resource. Like re-running a bootstrap script, change the instance's IP address, etc.
+
+- Usage `terraform taint [options] address`
+
+- The `address` argument is the address of the resource to taint.
+
+- All of the command-line flags are all optional.
+  - `-allow-missing` - If specified, the command will succeed even if the resource is missing. It will only error in extreme erroneous cases.
+  - `-backup=path` - Path to the backup file. Defaults to `-state-out` with the ".backup" extension. Disabled by setting to "-".
+  - `-lock=true` - Lock the state file when locking is supported.
+  - `-lock-timeout=0s` - Duration to retry a state lock.
+  - `-state=path` - Path to read and write the state file to. Ignored when remote state is used.
+  - `-state-out=path` - Path to write updated state file. By default, the `-state` path will be used. Ignored when remote state is used.
+  - `-ignore-remote-version` - When using the enhanced remote backend with Terraform Cloud, continue even if remote and local Terraform versions differ. Use with extreme caution.
+
+- Tainting a single resource can be done like this: `terraform taint aws_instance.foo.instance_name`
+
+- Tainting a specific instance from a list of similar resources can be done like this: `terraform taint aws_instance.instance_naame[1]`
+
+- Tainting a resource within a module can be done like this: `terraform taint module.module_name.aws_instance.instance_name`
+
+- For more detailed information run `terraform taint --help`
+
+To get more hands on experience come and try the commands and the options in the [Lab](./Labs/Section-4/taint/)
+
+
 ### 4c. Given a scenario: choose when to use `terraform import` to import existing infrastructure into your Terraform state
+
 ### 4d. Given a scenario: choose when to use `terraform workspace` to create workspaces
 ### 4e. Given a scenario: choose when to use `terraform state` to view Terraform state
 ### 4f. Given a scenario: choose when to enable verbose logging and what the outcome/value is
