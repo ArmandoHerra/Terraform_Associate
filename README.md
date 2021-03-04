@@ -104,7 +104,7 @@ To get more hands on experience come and try the commands and the options in the
 
 - This is useful when you want to cause a certain side effect of recreating that is not visible in the attributes of a resource. Like re-running a bootstrap script, change the instance's IP address, etc.
 
-- Usage `terraform taint [options] address`
+- Usage: `terraform taint [options] address`
 
 - The `address` argument is the address of the resource to taint.
 
@@ -129,6 +129,30 @@ To get more hands on experience come and try the commands and the options in the
 
 
 ### 4c. Given a scenario: choose when to use `terraform import` to import existing infrastructure into your Terraform state
+
+- The `terraform import` command will find the resource associated with the address provided and import it into your Terraform state.
+
+- Usage: `terraform import [options] ADDRESS_ID`
+
+The address must be a valid resource address that depends on the resource type that is trying to be imported. Check the provider documentation for more information.
+
+- All of the command-line flags are optional. The list of available flags are:
+  - `-backup=path` - Used to indicate the path to backup the existing state file.
+  - `-config=path` - Path to directory of Terraform configuration files that configure the provider for import.
+  - `-input=true` - Whether to ask for input for provider configuration.
+  - `-lock=true` - Lock the state file when locking is supported.
+  - `-lock-timeout=0s` - Duration to retry a state lock.
+  - `-no-color` - If specified, output won't contain any color.
+  - `-parallelism=n` - Limit the number of concurrent operations as Terraform walks the graph. Defaults to 10.
+  - `-state=path` - Path to the source state file to read from.
+  - `-state-out=path` - Path to the destination state file to write to.
+  - `-var 'foo=bar'` - Set a variable in the Terraform configuration.
+  - `-var-file=foo` - Set variables in the Terraform configuration from a variable file.
+  - `-ignore-remote-version` - When using the enhanced remote backend with Terraform Cloud, continue even if remote and local Terraform versions differ. Use with extreme caution.
+
+- No labs are provided since existing resources are required to run the commands and demonstrate their use.
+
+- For more detailed information run `terraform import --help`
 
 ### 4d. Given a scenario: choose when to use `terraform workspace` to create workspaces
 ### 4e. Given a scenario: choose when to use `terraform state` to view Terraform state
