@@ -1,4 +1,4 @@
-data "aws_ami" "centos_east" {
+data "aws_ami" "ubuntu_east" {
   most_recent = true
 
   filter {
@@ -14,7 +14,7 @@ data "aws_ami" "centos_east" {
   owners = ["099720109477"]
 }
 
-data "aws_ami" "centos_west" {
+data "aws_ami" "ubuntu_west" {
   # Selecting our second provider by referencing it's alias.
   provider = aws.west
 
@@ -35,7 +35,7 @@ data "aws_ami" "centos_west" {
 
 
 resource "aws_instance" "east_instance" {
-  ami           = data.aws_ami.centos_east.id
+  ami           = data.aws_ami.ubuntu_east.id
   instance_type = "t3.nano"
   tags = {
     Lab = "Multiple Providers"
@@ -45,7 +45,7 @@ resource "aws_instance" "east_instance" {
 
 resource "aws_instance" "west_instance" {
   provider      = aws.west
-  ami           = data.aws_ami.centos_west.id
+  ami           = data.aws_ami.ubuntu_west.id
   instance_type = "t3.nano"
   tags = {
     Lab = "Multiple Providers"

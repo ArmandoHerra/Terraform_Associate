@@ -1,4 +1,4 @@
-data "aws_ami" "centos_east" {
+data "aws_ami" "ubuntu_east" {
   most_recent = true
 
    filter {
@@ -15,7 +15,7 @@ data "aws_ami" "centos_east" {
 }
 
 resource "aws_instance" "east_instance" {
-    ami           = data.aws_ami.centos_east.id
+    ami           = data.aws_ami.ubuntu_east.id
     instance_type = var.instance_size
     tags = {
       Lab = var.lab_name

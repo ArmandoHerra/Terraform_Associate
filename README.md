@@ -155,7 +155,35 @@ The address must be a valid resource address that depends on the resource type t
 - For more detailed information run `terraform import --help`
 
 ### 4d. Given a scenario: choose when to use `terraform workspace` to create workspaces
+
+- Terraform configuration has an associated backend that defines how operations are executed and where persistent data such as the Terraform `state` are stored. The persistent data stored in the backend, the state, belongs to a `workspace`.
+
+- Terraform workspaces allow you to store your Terraform state in multiple, separate, named workspaces. Terraform by default saves your state in a workspace called `default`.
+
+- The `default` workspace cannot be deleted.
+
+- Managing workspaces is done via the `terraform workspace` command.
+
+- Usage: `terraform workspace [options] WORKSPACE_NAME`
+
+- Depending on the option, you may not need to specify the workspace name.
+
+- The available options for the `terraform workspace` command are the following:
+  - `delete WORKSPACE_NAME` - Delete a specific workspace.
+  - `list` - Lists available workspaces.
+  - `new WORKSPACE_NAME` - Create a new workspace.
+  - `select WORKSPACE_NAME` - Select a specific workspace.
+  - `show` - Show the name of the current workspace.
+
+- For more detailed information run `terraform workspace --help`
+
+To get more hands on experience, come and try the available options in the [Lab](./Labs/Section-4/workspace/)
+
+
 ### 4e. Given a scenario: choose when to use `terraform state` to view Terraform state
+
+
+
 ### 4f. Given a scenario: choose when to enable verbose logging and what the outcome/value is
 
 ---

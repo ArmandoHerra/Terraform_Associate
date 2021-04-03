@@ -1,4 +1,4 @@
-data "aws_ami" "centos_east" {
+data "aws_ami" "ubuntu_east" {
   most_recent = true
 
   filter {
@@ -15,10 +15,10 @@ data "aws_ami" "centos_east" {
 }
 
 resource "aws_instance" "instance" {
-  ami           = data.aws_ami.centos_east.id
+  ami           = data.aws_ami.ubuntu_east.id
   instance_type = "t3.nano"
   tags = {
-    Lab = "Multiple Providers"
+    Lab = "Terraform taint"
   }
 }
 
