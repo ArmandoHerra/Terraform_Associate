@@ -102,7 +102,7 @@ To get more hands on experience come and try the commands and the options in the
 
 - The command itself does not modify the infrastructure, it marks the state file so Terraform knows what to do to the resource after the next plan/apply.
 
-- This is useful when you want to cause a certain side effect of recreating that is not visible in the attributes of a resource. Like re-running a bootstrap script, change the instance's IP address, etc.
+- This is useful when you want to cause a certain side effect of recreating that is not visible in the attributes of a resource. Like re-running a bootstrap script, change the instance's IP address, etc. Or simply because you want to make Terraform re-create a resource even if Terraform doesn't think it's necessary due to it's default behaviour.
 
 - Usage: `terraform taint [options] address`
 
@@ -179,12 +179,90 @@ The address must be a valid resource address that depends on the resource type t
 
 To get more hands on experience, come and try the available options in the [Lab](./Labs/Section-4/workspace/)
 
+- Situations when are Multiple Workspaces useful and more information about Workspaces.
+
+  - One use is to create a parallel copy of the infrastructure you are working on, in order to test a specific set of changes before modifying the main production infrastructure.
+
+  - To work on and replicate the infrastructure for several environments, also for isolating the state files between environment resources as a best practice. Although workspaces do not solve all the problems, sometimes you will need to separate environment resources across several Cloud Provider Accounts as well.
 
 ### 4e. Given a scenario: choose when to use `terraform state` to view Terraform state
 
+- The `terraform state` command is used for advanced state management.
 
+- In some cases you will need to modify or work with the state files, so instead of editing them directly, you will manipulate them via the `terraform state` command.
+
+- As you will later on discover, the `terraform state` command works the same with remote state as it were local state. Reads and writes may take longer, since the state needs to be retrieved before doind any state operations.
+
+- Usage: `terraform state <subcommand> [options] [args]`
+
+### Advanced State Management Overview
+
+### Inspecting State
+
+- For reading and updating the state, Terraform includes several commands.
+
+- `terraform state list` - This command shows the resource addresses for every resource Terraform knows about in a configuration, optionally filtered by partial resource address.
+
+- `terraform state show` - This command displays detailed state data about one resource.
+
+- `terraform refresh` - This command updates the state data to match the real-world condition of the managed resources. This is done automatically during plans and applies, but not when interacting with state directly.
+
+### Forcing Re-Creation (Tainting)
+
+- As we say briefly in the `terraform taint` command, we can use the taint command to force re-creation of a resource during next apply if we think it's necessary.
+
+- `terraform taint` - This command tells Terraform to destroy and re-create a resource on the next apply, regardless of the default strategy of Terraform to edit in-place if this was the case.
+
+- `terraform untaint` - This command undoes a previously applied taint, this is mostly used if you tainted the incorrect resource or you no longer require tainting the resource.
+
+### Moving Resources
+
+- Terraform's state associates each real-world infrastructure piece with a configured resource at a specific resource address.
+
+- But Terraform can lose track of a resource if you change it's name, move it to a different module, or change it's provider.
+
+- In the case you want to preserve an existing infrastructure object, you can tell Terraform to associate it with a different configured resource.
+
+- `terraform state mv` - This command changes which address in your configuration is associated with a particular real-world object. Use this to preserve an object when renaming a resource, or when moving a resource into or out of a child module.
+
+- `terraform state rm` - This command tells Terraform to stop managing a resource as part of the current working directory and workspace, without actually destroying the corresponding real-world infrastructure object. If you need to recover management in a different workspace or project, you can use `terraform import`.
+
+- `terraform state replace-provider` - This command transfers existing resources to a new provider without requiring them to be re-created.
+
+### Disaster Recovery
+
+- If something goes terribly wrong with your state files, you may need to take drastic actions to recover your state files.
+
+- `terraform force-unluck` - This command can help you override the protection Terraform uses to prevent two processes from modifying the state file at the same time. You might need this command in the case that a Terraform process like a `terraform apply` is unexpectedly terminated and the state lock isn't released for the state backend. Do not run this command unless you are very sure about what occurred and that this can solve your state locking problem.
+
+- `terraform state pull` - This command can help you read entire state files from the configured backend. You might need it to obtain a state backup.
+
+- `terraform state push` - This command can help you write entire state files to the configured backend. You might need it to restore a state backup if the current state is not working.
 
 ### 4f. Given a scenario: choose when to enable verbose logging and what the outcome/value is
+
+- When you are working on your usual day to day work and you notice some behaviour from Terraform that's unexpected or that doesn't work at all is the most common reason for why you might want to enable verbose logging to get a sense of what is going wrong.
+
+- To enable verbose logging of the Terraform CLI you will need to set the `TF_LOG` environment variable to one of the following:
+
+  - `TRACE`
+  - `DEBUG`
+  - `INFO`
+  - `WARN`
+  - `ERROR`
+
+And setting the environment variable is done like this in a *nix system.
+
+```
+export TF_LOG=TRACE
+```
+
+- Note that when enabling other Log levels, we get the following message from the Terraform CLI
+
+```
+[WARN] Log levels other than TRACE are currently unreliable, and are supported only for backward compatibility.
+  Use TF_LOG=TRACE to see Terraform's internal logs.
+```
 
 ---
 
