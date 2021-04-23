@@ -279,11 +279,62 @@ export TF_LOG=TRACE
 ## 6. Navigate Terraform workflow
 
 ### 6a. Describe Terraform workflow ( Write -> Plan -> Create )
+
+- When developing Terraform code in a project you will repeat many core steps before successfully configuring your Infrastructure, some of these steps are.
+  
+  - Writing your Initial Terraform configuration.
+  - Initializing a Terraform directory.
+  - Validating a Terraform configuration.
+  - Generating and reviewing a Terraform execution plan.
+  - Executing changes to Infrastructure with Terraform
+  - Destroying Infrastructure with Terraform
+  - Writing changes to your Terraform configuration.
+
+- According to HashiCorp there exists a Core Terraform Workflow, whioch has three steps:
+
+  1.- Write - Author infrastructure as code.
+  
+  2.- Plan - Preview changes before applying.
+
+  3.- Apply - Provision reproducible infrastructure.
+
 ### 6b. Initialize a Terraform working directory (`terraform init`)
+
+- This step is simple, it initializes a working directory that container Terraform configuration and takes care of installing providers, modules and initialize the corresponding configured backend.
+
+- `terraform init`
+
 ### 6c. Validate a Terraform configuration (`terraform validate`)
+
+- This step is used to validate if a Terraform configuration is valid, but does not access any remote services or check into any remote state, provider APIs, etc.
+
+- Validate runs checks that verify whether a configuration is syntactically valid and internally consistent, regardless of any provided variables or existing state. It is thus primarily useful for general verification of reusable modules, including correctness of attribute names and value types.
+
+- `terraform validate`
+
 ### 6d. Generate and review an execution plan for Terraform (`terraform plan`)
+
+- Once you have validated your configuration, you are ready to create an execution plan.
+
+- `terraform plan`
+
+- This command is a convenient way to check whether the execution plan for a ser of changes matches your expectations without making any changes to real resources or to the state.
+
 ### 6e. Execute changes to infrastructure with Terraform (`terraform apply`)
+
+- When you are ready to apply the changes you authored, you run the next command.
+
+- `terraform apply`
+
+- You can see an execution plan prior to running the command.
+
 ### 6f. Destroy Terraform managed infrastructure (`terraform destroy`)
+
+- When you need to remove the Infrastucture you have been managing with Terraform, you run the destroy command.
+
+- `terraform destroy`
+
+- This command orders Cloud Providers to destroy/deprovision a resource, so be careful which resources you destroy!
 
 ---
 
