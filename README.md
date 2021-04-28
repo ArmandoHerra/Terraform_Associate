@@ -607,6 +607,16 @@ terraform {
 
 ### 9c. Summarize features of Terraform Cloud
 
+- Terraform Cloud is a free to use, self-service SaaS platform that extends the capabilities of the open source Terraform CLI. 
 
+- It adds automation and collaboration features, and performs Terraform functionality remotely, making it ideal for collaborative and production environments.
+
+- Allows for Team Management & Governance - Manage & enforce teams & policies (as code).
+
+- Advanced Security, Compliance, and Governance - SSO, Audit, Private Datacenter Networking
+
+- Self-Service Infrastrcture - Support for ServiceNow / Configuration Designer workflows
+
+- Concurrent runs.
 
 ---
