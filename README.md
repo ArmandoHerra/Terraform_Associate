@@ -3,8 +3,11 @@
 ## 1. Understand infrastructure as code (IaC) concepts
 
 ### 1a. Explain what IaC is
+
 - It is the idea of managing infrastructure defined in a file or set a files, hence the name Infrastructure as Code, instead of managing the pieces by hand.
+
 ### 1b. Describe advantages of IaC patterns
+
 - It makes working with Infrastructure, versionable, automatable and reusable. It also can be shared with the organization and it helps you keep track of the changes in the Infrastructure.
 
 ---
@@ -12,11 +15,13 @@
 ## 2. Understand Terraform's purpose (vs other IaC)
 
 ### 2a. Explain multi-cloud and provider-agnostic benefits
+
 - Multi-cloud support allows for creating multi-cloud architectures, leveraging the benefits of several clouds or a hybrid cloud.
 
 - Being provider-agnostic also allows the tool to be used by more providers that create their own plugins to manage their Infrastructure/Tools via Terraform.
 
 ### 2b. Explain the benefits of state
+
 - State allows for the mapping of the current configuration of the Infrastructure with the Definition File Representation.
 
 - Terraform State besides tracking resources can track metatada such as resource dependencies.
@@ -28,6 +33,7 @@
 ## 3. Understand Terraform basics
 
 ### 3a. Handle Terraform and provider installation and versioning
+
 - The recommended way to handle the definition, installation and versioning of a provider is by using the `required_providers` block. Example. Note, this works for Terraform version 0.13 and above.
 
 ```
@@ -51,19 +57,25 @@ terraform {
 ```
 
 ### 3b. Describe plugin based architecture
+
 - Terraform is built on a plugin-based architecture so developers can create and extend Terraform's functionality.
 
 - There exist two main parts to Terraform: `Terraform Core` and `Terraform Plugins`.
 
 ### 3c. Demonstrate using multiple providers
+
 - [Lab](./Labs/Section-3/multiple-providers/)
 
 ### 3d. Describe how Terraform finds and fetches providers
+
 - When `terraform init` is run, Terraform reads the existing configuration files to determine which plugins are going to be used or have been required in the project. It searches for the plugins, it downloads them, and installs the determined pinned or version from the allowed version range. Finally, it writes a lock file to ensure Terraform will use the same plugin versions in the working directory until `terraform init` is run again.
 
 - There are three types of provisioners/plugins.
+
     - Built-in provisioners. Which are always available, since they are included in the Terraform binary.
+
     - Providers distributed by HashiCorp . Which are automatically downloaded if not already installed/present.
+
     - Third-party providers and provisioners. They must always be manually installed.
 
 ### 3e. Explain when to use and not use provisioners and when to use `local-exec` or `remote-exec`
@@ -340,13 +352,191 @@ export TF_LOG=TRACE
 
 ## 7. Implement and maintain state
 
+- When working on terraform operations such as `terraform plan` or `terraform apply` on some infrastructure project you were working on, the place where all of the operations are performed and where state snapshots are stored is in the terraform backend.
+
+- State
+
+  - Terraform uses persistent state data to keep track of the resources it's managing for you.
+
+  - When using the `local` backend, the state is stored on your local disk, at the same directory of your terraform project with the following name: `terraform.tfstate`
+
+  - State is never recommended to be edited by hand.
+
+- Operations
+
+  - Refers to performing API requests against infrastructure services in order to create, read, update, or destroy resources. Not every `terraform` 
+  subcommand performs API operations; many of them only operate on state data.
+  - The `local` backend performs API operations directly from the machine where the `terraform` command is run.
+
+  - The `remote` backend can perform API operations remotely, using Terraform Cloud or Terraform Enterprise. The remote system requires cloud credentials or network access to the resources being managed.
+
 ### 7a. Describe default local backend
+
+- The default `local` backend is that one that which does not have any extra configuration or remote backend configured, in which the state and operations are performed locally on the machine.
+
+- Collaboration with this type of backend is very hard and not recommended.
+
 ### 7b. Outline state locking
+
+- If supported by the type of backend being used, Terraform will lock your state for all operations that could write state. This prevents others from acquiring the lock and potentially corrupt your state in the scenario where two developers try to issue some `terraform apply` on the same infrastructure with different sets of changes.
+
+- State locking happens automatically on all operations that could write state. You won't see any message that it is happening. If state locking fails, Terraform will not continue.
+
+- Not all backends support locking.
+
+- If required, you can manually unluck the state for the defined configuration.
+
+- This will not modify your infrastructure. This command removes the lock on the state for the current configuration.
+
+- Usage: `terraform force-unlock [options] LOCK_ID [DIR]`
+  - Options:
+    - `-force` - Don't ask for input for unlock confirmation.
+
+- Which manually unlocks the state for the defined configuration.
+
 ### 7c. Handle backend authentication methods
+
+- Backend authentication methods vary slightly between different backends, but most rely on having access to the CLI or gaining authentication via certificates (Kubernetes) or passwords.
+
+- There also exists a command to obtain and save API tokens for Terraform services.
+
+- The `terraform login` command can be used to automatically obtain and save an API token for Terraform Cloud, Terraform Enterprise, or any other host that offers Terraform services.
+
 ### 7d. Describe remote state storage mechanisms and supported standard backends
+
+- Terraform's backends are divided into two main types, according to how they handle state and operations:
+
+  - **Enhanced** backends can both store state and perform operations. There are only two enhanced backends: `local` and `remote`. 
+
+  - **Standard** backends only store state, and rely on the `local` backend for performing operations.
+
+- The different available Standard Backends for Terraform are the following:
+  - artifactory
+  - azurerm
+  - consul
+  - cos
+  - etcd
+  - etcdv3
+  - gcs
+  - http
+  - kubernetes
+  - manta
+  - oss
+  - pg
+  - swift
+
 ### 7e. Describe effect of Terraform refresh on state
+
+- The `terraform refresh` command is used to reconcile the state Terraform knows about with the real-world infrastructure.
+
+- This can be used to detect any drift from the last-known state, and to update the state file.
+
+- It can also help to reconcile or sync the state Terraform needs when initializing for the first time a repository that uses `remote` state and we don't have the current state of the infrastructure.
+
+- This does not modify infrastructure in the end, it rather modifies the state file. If the state is changed, this may cause changes to occur during the next plan or apply.
+
+- Usage: `terraform refresh`
+
+  - The `terraform refresh` command accepts the following options:
+
+    - `-compact-warnings` - If Terraform produces any warnings that are not accompanied by errors, show them in a more compact form that includes only the summary messages.
+    - `-input=true` - Ask for input for variables if not directly set.
+    - `-lock=true` - Lock the state file when locking is supported.
+    - `-lock-timeout=0s` - Duration to try a state lock.
+    - `-no-color` - If specified, the console output won't contain any color.
+    - `-parallelism=n` - Limit the number of concurrent operation as Terraform walks the graph. Defaults to 10.
+    - `-target=resource` - A Resource Address to target. This limits the operation to the resource and it's dependencies. This flag can be used multiple times.
+    - `-var 'foo=bar'` - Set a variable in the Terraform configuration. This flag can be used multiple times.
+    - `-var-file=env_vars/dev.tfvars` - Set variables in the Terraform configuration from a variable file. If a `terraform.tfvars` or any `.auto.tfvars` files are present in the current directory, they will be automatically loaded. `terraform.tfvars` is loaded first and the `.auto.tfvars` files after in alphabetical order. Any files specified by `-var-file` override any values set automatically from files in the working directory. This flag can be used multiple times.
+
 ### 7f. Describe `backend` block in configuration and best practices for partial configurations
+
+- Each Terraform project can specify a backend, which defined exactly where and how operations are performed, where state snapshots are stored, etc.
+
+- The backend block, backends are configured with a nested `backend` block within the top-level `terraform` block:
+
+```tf
+terraform {
+  backend "remote" {
+    organization = "example_corp"
+
+    workspaces {
+      name = "my-app-prod"
+    }
+  }
+}
+```
+
+- Some things to take in account when using the backend configuration block are:
+
+  - A configuration can only provide one backend block.
+
+  - A backend block cannot refer to names values (like input variables, locals, or data source attributes).
+
+- You can choose the Backend Type in the label of the backend block that reads `"remote"`, this one is choosing the Remote Backend Type.
+
+- Some backends allow providing access credentials directly as part of the configuration for use in ususual sitiations, for pragmatic reasons. However, as part as best practices, it is not recommended to include access credentials as part of the backend configuration.
+
+- Instead, leave those arguments unset and provide credentials via the credentials files or environment variables that are conventional for the target system, as described in the documentation for each backend.
+
+- Partial Configurations
+
+  - You do not need to specify every required argument in the backend configuration.
+
+  - Omitting certain arguments may be desirable if some arguments are provided automatically by an automation script running Terraform.
+
+  - When some or all of the arguments are omitted, we call this a partial configuration.
+
+  - With a partial configuration, the remaining configuration arguments must be provided as part of the initialization process. There are several ways to supply the remaining arguments:
+
+    - File: A configuration file may be specified via the `init` command line. To specify a file, use the `-backend-config=PATH` option when running `terraform init`. If the file contains secrets it may be kept in a secure data store, such as Vault, in which case it must be downloaded to the local disk before running Terraform.
+
+    - Command-line key/values pairs: Key/value pairs can be specified via the `init` command line. Note that many shells retain command-line flags in a history file, so this isn't recommended for secrets. To specify a single key/value pair, use the `-backend-config="KEY=VALUE"` option wehen running `terraform init`.
+
+    - Interactively: Terraform will interactively ask you for the required values, unless interactive input is disabled. Terraform will not prompt for optional values.
+
+    - When using partial configuration, Terraform requires at a minimum that an empty backend configuration is specified in one of the root Terraform configuration files, to specify the backend type. For example:
+
+    - ```
+      terraform {
+        backend "s3" {
+          key     = "state/partial-configuration.tfstate"
+          region  = "us-east-1"
+          encrypt = true
+        }
+      }
+      ```
+
+    - And the rest of the configuration arguments are provided in this example via the command line as such:
+
+    - `terraform init -input=false -backend-config="bucket=state-bucket" -backend-config="dynamodb_table=locks-table"`
+
+    - Which would be equivalent to:
+
+    - ```
+      terraform {
+        backend "s3" {
+          key            = "state/partial-configuration.tfstate"
+          region         = "us-east-1"
+          encrypt        = true
+          bucket         = state-bucket
+          dynamodb_table = locks-table
+        }
+      }
+      ```
+
+
+
+
 ### 7g. Understand secret management in state files
+
+- Terraform state can contain sensitive data, depending on the resources in use and your personal or organization's definition of "sensitive". The state contains resource IDs and all the resource attributes. For resources such as databases, this may contain initial passwords.
+
+- When using local state, state is stored in plain-text JSON files.
+
+- When using remote state, state is only ever held in memory when used by Terraform. It may be encrypted at rest, but this depends on the specific state backend.
+
+- Overall recommendations is to use TLS connections, encryption at rest options for standard backends to protect your remote state. Also limit any access policies so only the required people can access it if required.
 
 ---
 
@@ -365,9 +555,58 @@ export TF_LOG=TRACE
 
 ## 9. Understand Terraform Cloud and Enterprise capabilities
 
-### 9a. Describe the benefits of Sentinel, registry, and workspaces
+### 9a. Describe the benefits of Sentinel, Module Registry, and Terraform Enterprise Workspaces
+
+- Benefits of Sentinel
+  
+  - Sentinel allows for applying the same coding practices that are applied to infrastructure, now for enforcing and managing policies.
+
+  - Codifying policy removes the need for ticketing queues, without sacrificing enforcement.
+
+  - Allows for creating, versioning and enforcing policies onto tools like Terraform.
+
+  - Sentinel also has a full testing framework.
+
+- Benefits of Module Registry
+
+  - The Terraform Module registry gives terraform users easy access to templates for setting up and running their infrastructure with verified and community modules.
+
+  - It allows module consumers to discover, use, and collaborate on modules.
+
+  - The Module Registry makes it easier for partners and community members to share and collaborate on modules and also to update and version modules to continuously make improvements to infrastructure configurations.
+
+  - It also allows expert users to share their knowledge and beginners can get up and running on Terraform faster.
+
+- Terraform Enterprise Workspaces
+
+  - Allows for creating specific permissions for roles. RBAC.
+  
+  - Allows for running Sentinel on the infrastructure.
+
+  - Allows for modularizing the infrastructure into workspaces for reusing  stacks of infrastructure on multiple applications.
+
 ### 9b. Differentiate OSS and TFE workspaces
+
+- Working with Terraform involves managing collections of infrastructure resources, and most organizations manage many different collections.
+
+- Terraform Cloud manages infrastructure collections with workspaces instead of directories. A workspace contains everything Terraform needs to manage a given collection of infrastructure, and separate workspaces function like completely separate working directories.
+
+- Workspace - Associate it with some set of configuration. In version control.
+- Variables - Configuration Files and Variables
+
+- OSS workspaces
+
+  - Plan
+  - Apply
+
+- TFE workpaces
+
+  - Run (Plan, Sentinel, Apply) - Can run in parallelism
+  - State file
+  - Permissions
+
 ### 9c. Summarize features of Terraform Cloud
+
 
 
 ---
