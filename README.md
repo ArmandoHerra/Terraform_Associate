@@ -1,5 +1,17 @@
 # Terraform_Associate
 
+## README
+
+### This repository is still under development, more practical and easily deployable labs are still under development and will soon be included.
+
+- If you wish to add change suggestions, I would please ask you to submit your ideas as an issue, and I can evaluate it and see if we can include it to the repo.
+
+- I'm open to add and improve this repository so it can become an easy source to gain the necessary information to learn enough Terraform to get certified and start using it in real projects for newcomers to the tool.
+
+- Thank you for collaborating and taking your time to check these guides.
+
+---
+
 ## 1. Understand infrastructure as code (IaC) concepts
 
 ### 1a. Explain what IaC is
