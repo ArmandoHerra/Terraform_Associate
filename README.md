@@ -6,7 +6,7 @@
  
 - If you wish to add change suggestions, I would please ask you to submit your ideas as an issue, and I can evaluate it and see if we can include it to the repo.
  
-- I'm open to adding and improve this repository so it can become an easy source to gain the necessary information to learn enough Terraform to get certified and start using it in real projects for newcomers to the tool.
+- I'm open to adding and improving this repository so it can become a better source to gain the necessary information and practice to learn enough Terraform to get certified, and for newcomers to the tool, enough information and practice to start using it in real projects.
  
 - Thank you for collaborating and taking your time to check these guides.
  
