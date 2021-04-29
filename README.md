@@ -781,6 +781,31 @@ resource "aws_elastic_beanstalk_environment" "tfenvtest" {
 
 ```
 
+- You can dynamically construct repeatable nested blocks like `setting` using a special `dynamic` block type, which is supported inside `resource`, `data`, `provider`, and `provisioner` blocks:
+
+```
+resource "aws_elastic_beanstalk_environment" "tfenvtest" {
+  name                = "test-name"
+  application         = "${aws_elastic_beanstalk_application.tftest.name}"
+  solution_stack_name = "64bit Amazon Linux 2018.03 v2.11.4 running Go 1.12.6"
+
+  dynamic "setting" {
+    for_each = var.settings
+    content {
+      namespace = setting.value["namespace"]
+      name = setting.value["name"]
+      value = setting.value["value"]
+    }
+  }
+}
+```
+
+- A `dynamic` block acts much like a `for` expression, but produces nested blocks instead of a complex typed value. It iterates over a given complex value, and generates a nested block for each element of that complex value.
+
+- Best practices for `dynamic` blocks.
+
+  	- Overuse of `dynamic` blocks can make configuration hard to read and maintain, so we recommend using them only when you need to hide details in order to build a clean user interface for a re-usable module. Always write nested blocks out literally where possible.
+
 ### 8h. Describe built-in dependency management (order of execution based)
 
 - Terraform most of the time is able to determine dependencies between resources based on the configuration provided, so that resources can be created and destroyed in the correct order.
