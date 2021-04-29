@@ -36,7 +36,7 @@
 
 - The recommended way to handle the definition, installation and versioning of a provider is by using the `required_providers` block. Example. Note, this works for Terraform version 0.13 and above.
 
-```
+```tf
 terraform {
   required_providers {
     mycloud = {
@@ -48,7 +48,7 @@ terraform {
 ```
 
 - For versions 0.12.
-```
+```tf
 terraform {
   required_providers {
     aws = "~> 1.0"
@@ -293,7 +293,7 @@ export TF_LOG=TRACE
 
 - The Terraform Registry is integrated directly into Terraform, so a Terraform configuration can refer to any module published in the registry. The syntax for specifying a registry module is `<NAMESPACE>/<NAME>/<PROVIDER>`. For example `hashicorp/consul/aws`
 
-```
+```tf
 module "consul" {
   source = "hashicorp/consul/aws"
   version = "0.1.0"
@@ -304,7 +304,7 @@ module "consul" {
 
 - You can also use modules from a private registry, like the one provided by Terraform Cloud. Private registry modules have source strings in the form `<HOSTNAME>/<NAMESPACE>/<NAME>/<PROVIDER>`
 
-```
+```tf
 module "vpc" {
   source = "app.terraform.io/example_corp/vpc/aws"
   version = "0.9.3"
@@ -313,7 +313,7 @@ module "vpc" {
 
 - Another way of using modules from private registries/repositories is using the following syntax:
 
-```
+```tf
 module "vpc" {
   source = "github.com/my_org/tf_modules/vpc?ref=1.2.6"
 }
@@ -331,7 +331,7 @@ module "vpc" {
 
 - Input variables are the same type of variables we are familiar with already, like the ones used in previous labs/examples. We can configue the variables that we wish to use in the module to give it flexibility for the data it will admit. E.g
 
-```
+```tf
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "2.21.0"
@@ -351,7 +351,7 @@ module "vpc" {
 
 - Output variables are similar as well, they function in a similar way as the output variables we have used already. In the root module of our project we can use the output variables we configure in the modules we are using. E.g.
 
-```
+```tf
 # main.tf
 resource "aws_elb" "example" {
   # ...
@@ -361,7 +361,7 @@ resource "aws_elb" "example" {
 
 ```
 
-```
+```tf
 # modules/servers/outputs.tf
 output "instance_ids" {
   value = aws_instance.this.*.id
@@ -384,7 +384,7 @@ output "instance_ids" {
 
 - Use the `version` argument in the `module` block to specify versions:
 
-```
+```tf
 module "consul" {
   source  = "hashicorp/consul/aws"
   version = "0.0.5"
@@ -616,7 +616,7 @@ terraform {
 
     - When using partial configuration, Terraform requires at a minimum that an empty backend configuration is specified in one of the root Terraform configuration files, to specify the backend type. For example:
 
-    - ```
+    - ```tf
       terraform {
         backend "s3" {
           key     = "state/partial-configuration.tfstate"
@@ -632,7 +632,7 @@ terraform {
 
     - Which would be equivalent to:
 
-    - ```
+    - ```tf
       terraform {
         backend "s3" {
           key            = "state/partial-configuration.tfstate"
@@ -696,9 +696,9 @@ terraform {
 
       - For example: an object type of `object({ name=string, age=number })` would match a value like the following:
 
-        ```
+        ```json
         {
-          name = "John"
+          name = "John",
           age  = 52
         }
         ```
@@ -707,7 +707,7 @@ terraform {
 
       - Finally, a tuple type of `tuple([string, number, bool])` would match a value like the following:
 
-        ```
+        ```sh
         ["a", 15, true]
         ```
 
@@ -726,7 +726,7 @@ terraform {
 
   - Example:
 
-```
+```tf
 data "aws_ami" "ubuntu_ami" {
   most_recent = true
 
@@ -756,7 +756,7 @@ data "aws_ami" "ubuntu_ami" {
 
 - The Terraform language includes a number of built-in functions that you can call from within expressions to transform and combine values. The general syntax for function calls is a function name followed by a comma-separated arguments in parentheses:
 
-```
+```tf
 > max(5, 12, 9)
 12
 
@@ -770,7 +770,7 @@ hello
 
 - Within top-level block constructs like resources, expressions can usually be used only when assigning a value to an argument using the `name = expression` form. This covers many uses, but some resource types include repeatable nested blocks in their arguments, which typically represent separate objects that are related to (or embedded within) the containing object:
 
-```
+```tf
 resource "aws_elastic_beanstalk_environment" "tfenvtest" {
   name = "test-name" # can use expressions here
 
@@ -783,7 +783,7 @@ resource "aws_elastic_beanstalk_environment" "tfenvtest" {
 
 - You can dynamically construct repeatable nested blocks like `setting` using a special `dynamic` block type, which is supported inside `resource`, `data`, `provider`, and `provisioner` blocks:
 
-```
+```tf
 resource "aws_elastic_beanstalk_environment" "tfenvtest" {
   name                = "test-name"
   application         = "${aws_elastic_beanstalk_application.tftest.name}"
@@ -816,7 +816,7 @@ resource "aws_elastic_beanstalk_environment" "tfenvtest" {
 
 - To illustrate this, assume you have an application running on your EC2 instance that expects to use a specific Amazon S3 bucket. This dependency is configured inside the application, and thus not visible to Terraform. You can use depends_on to explicitly declare the dependency. You can also specify multiple resources in the depends_on argument, and Terraform will wait until all of them have been created before creating the target resource.
 
-```
+```tf
 resource "aws_s3_bucket" "example" {
   acl    = "private"
 }
