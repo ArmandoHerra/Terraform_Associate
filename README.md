@@ -265,7 +265,7 @@ To get more hands on experience, come and try the available options in the [Lab]
 
 And setting the environment variable is done like this in a *nix system.
 
-```
+```sh
 export TF_LOG=TRACE
 ```
 
