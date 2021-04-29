@@ -696,7 +696,7 @@ terraform {
 
       - For example: an object type of `object({ name=string, age=number })` would match a value like the following:
 
-        ```json
+        ```js
         {
           name = "John",
           age  = 52
