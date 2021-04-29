@@ -280,11 +280,130 @@ export TF_LOG=TRACE
 
 ## 5. Interact with Terraform modules
 
+- Terraform modules help you manage the increasing complexity of managing configuration between many projects and when infrastructure and services grow.
+
+- Modules help with the following points:
+  
+  - Organize Configuration
+  - Encapsulate Configuration
+  - Re-use Configuration
+  - Provide consistency and ensure best practices.
+
 ### 5a. Contrast module source options
+
+- The Terraform Registry is integrated directly into Terraform, so a Terraform configuration can refer to any module published in the registry. The syntax for specifying a registry module is `<NAMESPACE>/<NAME>/<PROVIDER>`. For example `hashicorp/consul/aws`
+
+```
+module "consul" {
+  source = "hashicorp/consul/aws"
+  version = "0.1.0"
+}
+```
+
+- The `terraform init` command will download and cache any modules referenced by a configuration.
+
+- You can also use modules from a private registry, like the one provided by Terraform Cloud. Private registry modules have source strings in the form `<HOSTNAME>/<NAMESPACE>/<NAME>/<PROVIDER>`
+
+```
+module "vpc" {
+  source = "app.terraform.io/example_corp/vpc/aws"
+  version = "0.9.3"
+}
+```
+
+- Another way of using modules from private registries/repositories is using the following syntax:
+
+```
+module "vpc" {
+  source = "github.com/my_org/tf_modules/vpc?ref=1.2.6"
+}
+```
+
+- Note that we are using a tagged version of the module and setting a version contraint here, this setup is recommended for general use, and upgrades are made easier and with more purpose.
+
 ### 5b. Interact with module inputs and outputs
+
+- Terraform modules have two set of variables that we can use to compose and configure our Infrastructure.
+
+  - Input Variables
+
+  - Output Variables
+
+- Input variables are the same type of variables we are familiar with already, like the ones used in previous labs/examples. We can configue the variables that we wish to use in the module to give it flexibility for the data it will admit. E.g
+
+```
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "2.21.0"
+
+  name = var.vpc_name
+  cidr = var.vpc_cidr
+
+  azs             = var.vpc_azs
+  private_subnets = var.vpc_private_subnets
+  public_subnets  = var.vpc_public_subnets
+
+  enable_nat_gateway = var.vpc_enable_nat_gateway
+
+  tags = var.vpc_tags
+}
+```
+
+- Output variables are similar as well, they function in a similar way as the output variables we have used already. In the root module of our project we can use the output variables we configure in the modules we are using. E.g.
+
+```
+# main.tf
+resource "aws_elb" "example" {
+  # ...
+
+  instances = module.servers.instance_ids
+}
+
+```
+
+```
+# modules/servers/outputs.tf
+output "instance_ids" {
+  value = aws_instance.this.*.id
+}
+```
+
 ### 5c. Describe variable scope within modules/child modules
+
+- The root module can use it's own variables and can use the values output by the child modules it's using.
+
+- The child modules only have access to the variables that they are passed and are set as default. The child module does not have access to the full scope of variables available to the root module.
+
 ### 5d. Discover modules from the public Terraform Module Registry
+
+- [https://registry.terraform.io/](https://registry.terraform.io/)
+
 ### 5e. Defining module version
+
+- When using in a project modules installed from a module registry, the best practice is to explicitly contrain or pin the version numbers to avoid unexpected or unwanted changes if another version is released and it changes something undesired in your underlying infrastructure.
+
+- Use the `version` argument in the `module` block to specify versions:
+
+```
+module "consul" {
+  source  = "hashicorp/consul/aws"
+  version = "0.0.5"
+
+  servers = 3
+}
+```
+
+- Meta-arguments
+
+  - Along with `source` and `version`. Terraform defines a few more optional meta-arguments that have special meaning across all modules.
+
+    - `count` - Creates multiple instances of a module from a single `module` block.
+    
+    - `for_each` - Creates multiple instances of a module from a single `module` block.
+
+    - `providers` - Passes provider configurations to a child module. If not specified, the child module inherits all of the default (un-aliased) provider configurations from the calling module.
+
+    - `depends_on` - Creates explicit dependencies between the entire module and the listed targets.
 
 ---
 
@@ -525,9 +644,6 @@ terraform {
       }
       ```
 
-
-
-
 ### 7g. Understand secret management in state files
 
 - Terraform state can contain sensitive data, depending on the resources in use and your personal or organization's definition of "sensitive". The state contains resource IDs and all the resource attributes. For resources such as databases, this may contain initial passwords.
@@ -543,13 +659,75 @@ terraform {
 ## 8. Read, generate, and modify configuration
 
 ### 8a. Demonstrate use of variables and outputs
+
+- Lab
+
 ### 8b. Describe secure secret injection best practice
+
+- Secrets Injection using Vault, facilitates the creation of short-lived authentication credentials for provisioning infrasturcture.
+
+- It also helps reduce insider threats, if you create dynamic secrets with Vault.
+
+- IT helps agains accidental leaks of secrets that end up exposed in Version Control or other places.
+
+- Safely delivering dynamic secrets via encrypted means.
+
 ### 8c. Understand the use of collection and structural types
+
+
+
 ### 8d. Create and differentiate `resource` and `data` configuration
+
+- `resource` 
+
+  - A resource address is a string that references a specific resource in a large set of infrastructure.
+
+  - Example: `aws_instance.web_instance`
+
+- `data`
+
+  - Data sources allow data to be fetched or computed for use elsewhere in Terraform configuration. Use of data sources allows a Terraform configuration to make use of information defined outside of Terraform, or defined by another separate Terraform configuration.
+
+  - Example:
+
+```
+data "aws_ami" "ubuntu_ami" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"]
+}
+```
+
+  - This data source computes and fetches the information relating to the AWS AMI using the filters and owners as the main parameters.
+
+  - Finally the AMI ID is consumed like this: `ami = data.aws_ami.ubuntu_ami.id`
+
 ### 8e. Use resource addressing and resource parameters to connect resources together
+
+
+
 ### 8f. Use Terraform built-in functions to write configuration
+
+
+
 ### 8g. Configure resource using a `dynamic` block
+
+
+
 ### 8h. Describe built-in dependency management (order of execution based)
+
+
+
 
 ---
 
