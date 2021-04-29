@@ -674,6 +674,42 @@ terraform {
 
 ### 8c. Understand the use of collection and structural types
 
+- Complex types are a type that group multiple values into a single value.
+
+- There are two categories of complex types: collection types (for grouping similar values), and structural types (for grouping potentially dissimilar values).
+
+  - Collection Types
+
+    - Collection types allow for multiple values of one other type to be grouped together as a single value. The type of value within a collection is called its element type. For example a `list(string)` is a list of strings.
+  
+    - `list(...)` - Collection of values of the same assigned type.
+
+    - `map(...)` - Collection of values where each is identified by a string label.
+
+    - `set(...)` - Collection of unique values that do not have any secondary identifiers or ordering.
+
+  - Structural Types
+
+    - A structural type allows multiple values of several distinct types to be grouped together as a single value. Structural types require a schema as an argument, to specify which types are allowed for which elements.
+
+    - `object(...)` - Collection of names attributes that each have their own type.
+
+      - For example: an object type of `object({ name=string, age=number })` would match a value like the following:
+
+        ```
+        {
+          name = "John"
+          age  = 52
+        }
+        ```
+
+    - `tuple(...)` - A sequence of elements identified by consecutive whole numbers starting with zero, where each element has its own type.
+
+      - Finally, a tuple type of `tuple([string, number, bool])` would match a value like the following:
+
+        ```
+        ["a", 15, true]
+        ```
 
 
 ### 8d. Create and differentiate `resource` and `data` configuration
@@ -714,20 +750,67 @@ data "aws_ami" "ubuntu_ami" {
 
 ### 8e. Use resource addressing and resource parameters to connect resources together
 
-
+- Lab
 
 ### 8f. Use Terraform built-in functions to write configuration
 
+- The Terraform language includes a number of built-in functions that you can call from within expressions to transform and combine values. The general syntax for function calls is a function name followed by a comma-separated arguments in parentheses:
 
+```
+> max(5, 12, 9)
+12
+
+> lower("HELLO")
+hello
+```
+
+- You can also chain together several functions to create more complex configurations.
 
 ### 8g. Configure resource using a `dynamic` block
 
+- Within top-level block constructs like resources, expressions can usually be used only when assigning a value to an argument using the `name = expression` form. This covers many uses, but some resource types include repeatable nested blocks in their arguments, which typically represent separate objects that are related to (or embedded within) the containing object:
 
+```
+resource "aws_elastic_beanstalk_environment" "tfenvtest" {
+  name = "test-name" # can use expressions here
+
+  setting {
+    # but the "setting" block is always a literal block and the same
+  }
+}
+
+```
 
 ### 8h. Describe built-in dependency management (order of execution based)
 
+- Terraform most of the time is able to determine dependencies between resources based on the configuration provided, so that resources can be created and destroyed in the correct order.
 
+- However, this isn't always the case, sometimes Terraform runs into problems determining dependencies between parts of your infrastructure, and you will need to create an explicit dependency with the `depends_on` argument.
 
+- Implicit dependencies are the primary way that Terraform understands the relationships between your resources. Sometimes there are dependencies between resources that are not visible to Terraform, however. The depends_on argument is accepted by any resource or module block and accepts a list of resources to create explicit dependencies for.
+
+- To illustrate this, assume you have an application running on your EC2 instance that expects to use a specific Amazon S3 bucket. This dependency is configured inside the application, and thus not visible to Terraform. You can use depends_on to explicitly declare the dependency. You can also specify multiple resources in the depends_on argument, and Terraform will wait until all of them have been created before creating the target resource.
+
+```
+resource "aws_s3_bucket" "example" {
+  acl    = "private"
+}
+
+resource "aws_instance" "example_c" {
+  ami           = data.aws_ami.amazon_linux.id
+  instance_type = "t2.micro"
+
+  depends_on = [aws_s3_bucket.example]
+}
+
+module "example_sqs_queue" {
+  source  = "terraform-aws-modules/sqs/aws"
+  version = "2.1.0"
+
+  depends_on = [aws_s3_bucket.example, aws_instance.example_c]
+}
+
+```
 
 ---
 
